@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tolong Aku Decide</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Makan Apa Harini</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Slackey -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Slackey&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,7 +14,6 @@
       --brand-yellow: #ffd02f;
       --canvas: #09090b;
       --surface: #18181b;
-      --hairline: #27272a;
     }
 
     body {
@@ -33,7 +30,6 @@
       font-family: 'Slackey', cursive;
     }
 
-    /* Smooth animated spring transitions */
     .spring-pop {
       animation: springIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
@@ -52,44 +48,33 @@
       100% { transform: translate(2px, 1px); }
     }
 
-    /* Custom scrollbar hide */
-    .no-scrollbar::-webkit-scrollbar {
+    .scrollbar-hide::-webkit-scrollbar {
       display: none;
     }
-    .no-scrollbar {
+    .scrollbar-hide {
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
   </style>
 </head>
-<body class="bg-[#09090b] text-white flex justify-center min-h-screen">
+<body class="bg-[#09090b] text-white flex justify-center min-h-[100dvh]">
 
-  <!-- Mobile Viewport Container -->
-  <div 
-    id="appContainer" 
-    class="relative w-full max-w-md min-h-screen flex flex-col justify-between py-10 px-6 overflow-hidden transition-colors duration-500 bg-[#09090b]"
-  >
+  <div id="appContainer" class="relative w-full max-w-md min-h-[100dvh] flex flex-col justify-between py-8 px-5 overflow-hidden transition-colors duration-500 bg-[#09090b]">
 
-    <!-- VIEW: Main Roulette Dashboard -->
+    <!-- VIEW: Main Dashboard -->
     <div id="mainView" class="w-full flex-1 flex flex-col items-center justify-between z-10">
       
-      <!-- Top Bar Navigation -->
       <header id="topHeader" class="w-full flex justify-start items-center z-30 mb-2">
-        <button 
-          id="toggleHistoryBtn"
-          onclick="toggleHistoryView()"
-          class="text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-2 transition-all shadow-sm bg-zinc-900/90 text-zinc-300 border border-zinc-800 active:scale-95"
-        >
+        <button onclick="toggleHistoryView()" class="text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-2 transition-all shadow-sm bg-zinc-900 text-zinc-300 border border-zinc-800 active:scale-95">
           <span id="historyDot" class="w-1.5 h-1.5 rounded-full bg-[#ffd02f]"></span>
           <span id="historyBtnLabel">History (0)</span>
         </button>
       </header>
 
-      <!-- App Header Title -->
-      <div id="headerTitle" class="w-full flex flex-col items-center text-center gap-1 mt-12 mb-3 transition-opacity duration-300">
+      <div id="headerTitle" class="w-full flex flex-col items-center text-center gap-1 mt-6 mb-8 transition-opacity duration-300">
         <h1 class="text-[2.65rem] sm:text-[3.25rem] font-black tracking-tight uppercase slackey-font leading-[1.08]">
-          Tolong <br/>
-          <span class="text-[#ffd02f]">Aku Decide</span>
+          Makan Apa <br/>
+          <span class="text-[#ffd02f]">Harini?</span>
         </h1>
         <p class="text-zinc-400 font-medium text-sm sm:text-[15px] mt-2 max-w-[340px] leading-relaxed">
           Jangan gaduh. Meh aku tolong pilih.
@@ -106,29 +91,24 @@
         </button>
       </div>
 
-      <!-- Center Staging & Input Form -->
+      <!-- Center Staging -->
       <main id="stagingCenter" class="w-full flex flex-col items-center justify-start my-auto flex-1">
         
-        <!-- Mode 1: Explore View (Presets) -->
-        <div id="exploreView" class="hidden w-full flex-col gap-3 spring-pop">
-          <button onclick="loadPreset('staples')" class="w-full h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-between px-6 active:scale-[0.98] transition-transform group">
-             <span class="font-bold text-base text-white">Local Staples</span>
-             <span class="text-[11px] font-extrabold text-zinc-500 uppercase tracking-wider group-active:text-[#ffd02f] transition-colors">6 Choices</span>
-          </button>
-          <button onclick="loadPreset('hubs')" class="w-full h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-between px-6 active:scale-[0.98] transition-transform group">
-             <span class="font-bold text-base text-white">Anchors & Hubs</span>
-             <span class="text-[11px] font-extrabold text-zinc-500 uppercase tracking-wider group-active:text-[#ffd02f] transition-colors">5 Choices</span>
-          </button>
+        <!-- Mode 1: Explore (Horizontal Malls) -->
+        <div id="exploreView" class="hidden w-full flex-col spring-pop mb-2">
+          <div id="mallTabs" class="w-full flex gap-3 overflow-x-auto snap-x scrollbar-hide px-1 pb-4">
+            <!-- Injected by JS -->
+          </div>
         </div>
 
-        <!-- Mode 2: Custom View (Inputs) -->
-        <div id="customView" class="w-full flex flex-col w-full spring-pop">
-          <form onsubmit="handleAddRestaurant(event)" class="w-full relative mb-6">
+        <!-- Mode 2: Custom (Input Form) -->
+        <div id="customView" class="w-full flex flex-col spring-pop mb-4">
+          <form onsubmit="handleAddRestaurant(event)" class="w-full relative">
             <input
               id="restaurantInput"
               type="text"
               autocomplete="off"
-              placeholder="Add option / choice..."
+              placeholder="Add option..."
               class="w-full bg-zinc-900 border-2 border-zinc-800 focus:border-[#ffd02f] text-white rounded-full py-4 pl-6 pr-24 text-base font-semibold outline-none transition-colors placeholder:text-zinc-600 shadow-xl"
               oninput="handleInputState()"
             />
@@ -141,16 +121,16 @@
               Add
             </button>
           </form>
-
-          <!-- Kinetic List of Staged Options -->
-          <ul id="restaurantsList" class="w-full flex flex-col gap-2.5 overflow-y-auto max-h-[28vh] px-1 no-scrollbar">
-            <!-- Populated by JavaScript -->
-          </ul>
         </div>
+
+        <!-- Unified Staging List -->
+        <ul id="restaurantsList" class="w-full flex flex-col gap-2.5 overflow-y-auto max-h-[35vh] px-1 scrollbar-hide pb-4">
+          <!-- Populated by JavaScript -->
+        </ul>
       </main>
 
-      <!-- Bottom Spin CTA Button (Only for Custom Mode) -->
-      <div id="spinContainer" class="w-full pt-4 z-20">
+      <!-- Bottom Spin CTA -->
+      <div id="spinContainer" class="w-full pt-2 z-20 mt-auto">
         <button
           id="spinBtn"
           onclick="startRouletteSpin()"
@@ -167,53 +147,40 @@
     <div id="spinningOverlay" class="hidden absolute inset-0 flex items-center justify-center bg-zinc-950 z-20 px-6">
       <div id="tickerBox" class="w-full px-4 text-center overflow-hidden ticker-shake">
         <div class="text-zinc-500 text-sm font-bold uppercase tracking-[4px] mb-4 slackey-font">
-          Spinning...
+          Jap aku spin...
         </div>
-        <h2 
-          id="tickerText"
-          class="text-5xl sm:text-6xl font-black uppercase tracking-tight break-words leading-none slackey-font filter blur-[0.5px] transition-colors"
-        >
+        <h2 id="tickerText" class="text-4xl sm:text-5xl font-black uppercase tracking-tight break-words leading-tight slackey-font filter blur-[0.5px] transition-colors">
           ...
         </h2>
       </div>
     </div>
 
-    <!-- OVERLAY: Winner Announcement & Negotiation Flow -->
+    <!-- OVERLAY: Winner Announcement -->
     <div id="winnerOverlay" class="hidden absolute inset-0 flex flex-col items-center justify-center text-zinc-950 z-20 px-6 pt-16 pb-8 text-center">
-      
-      <!-- Phase 1: Reveal & Negotiate -->
       <div id="negotiationBlock" class="flex flex-col items-center w-full max-w-sm spring-pop">
         <div class="uppercase tracking-wider font-bold text-xs mb-4 bg-zinc-950 text-white py-1.5 px-5 rounded-full slackey-font shadow-md">
-          Yang menang adalah...
+          Jom makan...
         </div>
-
-        <h2 
-          id="winnerText" 
-          class="text-4xl sm:text-6xl font-black uppercase tracking-tight mb-8 w-full overflow-hidden slackey-font [overflow-wrap:anywhere] [word-break:normal] leading-tight"
-        >
-          Winner Name
-        </h2>
-
-        <!-- Action Choices -->
+        <h2 id="winnerText" class="text-4xl sm:text-5xl font-black uppercase tracking-tight mb-8 w-full overflow-hidden slackey-font [overflow-wrap:anywhere] [word-break:normal] leading-tight"></h2>
+        
         <div class="w-full min-h-[140px] flex flex-col justify-center">
           <div id="revealControls" class="flex flex-col items-center w-full">
-            <p class="font-bold text-lg mb-4 opacity-90">Happy with this choice?</p>
+            <p class="font-bold text-lg mb-4 opacity-90">Okay ke tak?</p>
             <div class="flex gap-3 w-full">
               <button onclick="setWinnerPhase('accepted')" class="flex-1 bg-zinc-950 text-white rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform shadow-lg slackey-font">Yes</button>
               <button onclick="setWinnerPhase('rejected')" class="flex-1 bg-transparent border-[3px] border-zinc-950 text-zinc-950 rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform slackey-font">No</button>
             </div>
           </div>
           <div id="rejectedControls" class="hidden flex flex-col gap-2.5 w-full">
-            <button onclick="handleSpinAgain()" class="w-full bg-zinc-950 text-white rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform shadow-lg slackey-font">Choose Another</button>
-            <button onclick="setWinnerPhase('accepted')" class="w-full bg-transparent border-[3px] border-zinc-950 text-zinc-950 rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform slackey-font">Do Anyways</button>
+            <button onclick="handleSpinAgain()" class="w-full bg-zinc-950 text-white rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform shadow-lg slackey-font">Spin balik</button>
+            <button onclick="setWinnerPhase('accepted')" class="w-full bg-transparent border-[3px] border-zinc-950 text-zinc-950 rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform slackey-font">Makan je lah</button>
           </div>
         </div>
       </div>
 
-      <!-- Phase 2: Celebration Screen -->
       <div id="celebrationBlock" class="hidden flex flex-col items-center w-full max-w-sm spring-pop">
         <h2 class="text-5xl sm:text-6xl font-black uppercase tracking-tight leading-[0.95] mb-8 slackey-font">
-          Congrats<br/>Doh!
+          Jom<br/>makan!
         </h2>
         <button onclick="handleResetAndCommit()" class="w-full bg-zinc-950 text-white rounded-full py-4 font-bold text-lg active:scale-95 transition-transform shadow-xl slackey-font">
           Save & Start Over
@@ -221,69 +188,56 @@
       </div>
     </div>
 
-    <!-- VIEW: Past Decisions History -->
-    <div id="historyView" class="hidden w-full flex-1 flex flex-col pt-4 z-20 overflow-y-auto no-scrollbar">
+    <!-- VIEW: History -->
+    <div id="historyView" class="hidden w-full flex-1 flex flex-col pt-4 z-20 overflow-y-auto scrollbar-hide">
       <div class="flex items-center justify-between mb-6">
-        <button onclick="toggleHistoryView()" class="text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 bg-zinc-900 text-zinc-300 border border-zinc-800 active:scale-95 transition-all shadow-sm">
+        <button onclick="toggleHistoryView()" class="text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-1.5 bg-zinc-900 text-zinc-300 border border-zinc-800 active:scale-95 transition-all shadow-sm">
           ← Back
         </button>
         <h2 class="text-2xl slackey-font text-[#ffd02f]">Past Decisions</h2>
-        <div class="w-14"></div>
+        <div class="w-[72px]"></div>
       </div>
-      <div id="historyListContainer" class="flex flex-col gap-3 pb-8">
-        <!-- Injected via JavaScript -->
-      </div>
+      <div id="historyListContainer" class="flex flex-col gap-3 pb-8"></div>
     </div>
 
   </div>
 
   <script>
-    /* Vibrant Neon Colors Palette */
-    const VIBRANT_COLORS = [
-      "#0fbcb0", // Teal
-      "#ff9999", // Coral
-      "#ffd8f4", // Rose
-      "#00e59b", // Neon Green
-      "#ff8c00", // Tangerine
-      "#708aff", // Light Brand Blue
-      "#e580ff"  // Electric Purple
-    ];
+    const VIBRANT_COLORS = ["#0fbcb0", "#ff9999", "#ffd8f4", "#00e59b", "#ff8c00", "#708aff", "#e580ff"];
 
-    /* Application State */
-    let restaurants = [];
+    const PRESETS = {
+      sunway_putra: { label: 'Sunway Putra', items: ['Onde Onde', 'Dolly Dim Sum', 'DubuYo', 'Sushi Zanmai', "Nando's", 'Grill Teppanyaki', 'Pop Meals'] },
+      klcc: { label: 'Suria KLCC', items: ['Signatures Food Court', "Chili's", 'Yuzu', "Madam Kwan's", 'Spring Garden'] },
+      wangsa_walk: { label: 'Wangsa Walk', items: ['Absolute Thai', 'The Chicken Rice Shop', 'Seoul Garden', 'Sushi King', "Nando's"] },
+      pavilion_damansara: { label: 'Pav Damansara', items: ['Din Tai Fung', "Christine's", 'Kampai', 'OMI', 'Paul'] }
+    };
+
+    let customRestaurants = []; 
+    let activeSpinList = []; 
     let history = [];
-    let activeSpinList = []; // Tracks what is currently being spun (custom or preset)
     let isSpinning = false;
     let winner = null;
     let winnerPhase = 'reveal'; 
     let currentView = 'main';    
     let currentMode = 'custom'; 
+    let activeMallKey = null;
     let spinInterval = null;
 
-    const PRESETS = {
-      staples: ['Nasi Briyani', 'Ayam Penyet', 'Hainanese Chicken Rice', 'Shawarma', 'Roti Canai', 'Honey Truffle Pizza'],
-      hubs: ['Melawati Mall', 'Ampang Point', 'Suria KLCC', 'Sasana Kijang Cafe', 'Taman Permata']
-    };
-
-    /* DOM References */
     const appContainer = document.getElementById('appContainer');
     const mainView = document.getElementById('mainView');
     const historyView = document.getElementById('historyView');
     const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
     const historyBtnLabel = document.getElementById('historyBtnLabel');
     const historyDot = document.getElementById('historyDot');
-    
     const modeExploreBtn = document.getElementById('modeExploreBtn');
     const modeCustomBtn = document.getElementById('modeCustomBtn');
     const exploreView = document.getElementById('exploreView');
     const customView = document.getElementById('customView');
-    const spinContainer = document.getElementById('spinContainer');
-
+    const mallTabs = document.getElementById('mallTabs');
     const restaurantInput = document.getElementById('restaurantInput');
     const addBtn = document.getElementById('addBtn');
     const restaurantsList = document.getElementById('restaurantsList');
     const spinBtn = document.getElementById('spinBtn');
-    
     const spinningOverlay = document.getElementById('spinningOverlay');
     const tickerText = document.getElementById('tickerText');
     const winnerOverlay = document.getElementById('winnerOverlay');
@@ -294,12 +248,9 @@
     const winnerText = document.getElementById('winnerText');
     const historyListContainer = document.getElementById('historyListContainer');
 
-    /* Audio Chimes using Web Audio API */
     let audioCtx = null;
     function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       return audioCtx;
     }
 
@@ -337,7 +288,30 @@
       } catch (e) {}
     }
 
-    /* Mode Switching Logic */
+    function renderMallTabs() {
+      mallTabs.innerHTML = '';
+      Object.keys(PRESETS).forEach(key => {
+        const btn = document.createElement('button');
+        const isActive = activeMallKey === key;
+        btn.className = `rounded-full snap-start whitespace-nowrap px-5 py-3 text-sm font-bold border-2 transition-all active:scale-95 ${isActive ? 'bg-[#ffd02f] text-zinc-950 border-[#ffd02f]' : 'bg-zinc-900 text-zinc-400 border-zinc-800'}`;
+        btn.innerText = PRESETS[key].label;
+        btn.onclick = () => loadMallPreset(key);
+        mallTabs.appendChild(btn);
+      });
+    }
+
+    function loadMallPreset(key) {
+      activeMallKey = key;
+      renderMallTabs();
+      activeSpinList = PRESETS[key].items.map((name, index) => ({
+        id: Date.now() + index,
+        name: name,
+        color: VIBRANT_COLORS[index % VIBRANT_COLORS.length]
+      }));
+      renderRestaurantsList();
+      updateSpinButtonState();
+    }
+
     function setMode(mode) {
       currentMode = mode;
       if (mode === 'explore') {
@@ -347,7 +321,12 @@
         exploreView.classList.add('flex');
         customView.classList.add('hidden');
         customView.classList.remove('flex');
-        spinContainer.classList.add('hidden');
+        
+        activeMallKey = null;
+        activeSpinList = [];
+        renderMallTabs();
+        renderRestaurantsList();
+        updateSpinButtonState();
       } else {
         modeCustomBtn.className = "px-6 py-2.5 rounded-full text-sm font-extrabold bg-[#ffd02f] text-zinc-950 active:scale-95 transition-all";
         modeExploreBtn.className = "px-6 py-2.5 rounded-full text-sm font-extrabold bg-transparent text-zinc-400 active:scale-95 transition-all";
@@ -355,18 +334,11 @@
         exploreView.classList.remove('flex');
         customView.classList.remove('hidden');
         customView.classList.add('flex');
-        spinContainer.classList.remove('hidden');
+        
+        activeSpinList = [...customRestaurants];
+        renderRestaurantsList();
+        updateSpinButtonState();
       }
-    }
-
-    function loadPreset(key) {
-      const presetItems = PRESETS[key];
-      const presetArray = presetItems.map((name, index) => ({
-        id: Date.now() + index,
-        name: name,
-        color: VIBRANT_COLORS[index % VIBRANT_COLORS.length]
-      }));
-      startRouletteSpin(presetArray);
     }
 
     function handleInputState() {
@@ -378,19 +350,17 @@
       if (e) e.preventDefault();
       const cleanInput = restaurantInput.value.trim();
       if (!cleanInput) return;
-
-      if (restaurants.some(r => r.name.toLowerCase() === cleanInput.toLowerCase())) {
+      if (customRestaurants.some(r => r.name.toLowerCase() === cleanInput.toLowerCase())) {
         restaurantInput.value = "";
         handleInputState();
         return;
       }
-
-      restaurants.unshift({
+      customRestaurants.unshift({
         id: Date.now(),
         name: cleanInput,
-        color: VIBRANT_COLORS[restaurants.length % VIBRANT_COLORS.length]
+        color: VIBRANT_COLORS[customRestaurants.length % VIBRANT_COLORS.length]
       });
-
+      activeSpinList = [...customRestaurants];
       restaurantInput.value = "";
       handleInputState();
       renderRestaurantsList();
@@ -398,39 +368,29 @@
     }
 
     function removeRestaurant(idToRemove) {
-      restaurants = restaurants.filter(r => r.id !== idToRemove);
+      activeSpinList = activeSpinList.filter(r => r.id !== idToRemove);
+      if (currentMode === 'custom') {
+        customRestaurants = customRestaurants.filter(r => r.id !== idToRemove);
+      }
       renderRestaurantsList();
       updateSpinButtonState();
     }
 
     function renderRestaurantsList() {
       restaurantsList.innerHTML = "";
-
-      if (restaurants.length === 0) {
-        restaurantsList.innerHTML = `
-          <div class="text-center text-zinc-600 py-4 font-medium text-sm">
-            Add options above to start...
-          </div>
-        `;
+      if (activeSpinList.length === 0) {
+        const msg = currentMode === 'explore' ? 'Select a mall above...' : 'Add options above to start...';
+        restaurantsList.innerHTML = `<div class="text-center text-zinc-600 py-6 font-medium text-sm">${msg}</div>`;
         return;
       }
-
-      restaurants.forEach(rest => {
+      activeSpinList.forEach(rest => {
         const li = document.createElement('li');
         li.className = "spring-pop rounded-full py-3.5 px-6 flex justify-between items-center group shadow-md text-zinc-950";
         li.style.backgroundColor = rest.color;
         li.innerHTML = `
           <span class="font-bold text-base leading-none pt-0.5 slackey-font">${escapeHtml(rest.name)}</span>
-          <button 
-            type="button"
-            onclick="removeRestaurant(${rest.id})"
-            class="w-7 h-7 rounded-full bg-zinc-950/10 flex items-center justify-center text-zinc-950 active:bg-zinc-950/25 transition-all"
-            aria-label="Remove"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+          <button type="button" onclick="removeRestaurant(${rest.id})" class="w-7 h-7 rounded-full bg-zinc-950/10 flex items-center justify-center text-zinc-950 active:bg-zinc-950/25 transition-all">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         `;
         restaurantsList.appendChild(li);
@@ -438,19 +398,17 @@
     }
 
     function updateSpinButtonState() {
-      if (restaurants.length < 2) {
+      if (activeSpinList.length < 2) {
         spinBtn.disabled = true;
-        spinBtn.textContent = "Need 2+ Options";
+        spinBtn.textContent = currentMode === 'explore' && activeMallKey === null ? "Select Mall" : "Need 2+ Options";
       } else {
         spinBtn.disabled = false;
         spinBtn.textContent = "Spin!";
       }
     }
 
-    function startRouletteSpin(overrideRestaurants = null) {
-      activeSpinList = Array.isArray(overrideRestaurants) ? overrideRestaurants : restaurants;
-      if (!activeSpinList || activeSpinList.length < 2) return;
-
+    function startRouletteSpin() {
+      if (activeSpinList.length < 2) return;
       isSpinning = true;
       winner = null;
       winnerPhase = 'reveal';
@@ -464,7 +422,6 @@
       let elapsed = 0;
       const spinDuration = 3000;
       let tickSpeed = 60;
-
       clearInterval(spinInterval);
 
       const updateTicker = () => {
@@ -477,12 +434,9 @@
       spinInterval = setInterval(() => {
         updateTicker();
         elapsed += tickSpeed;
-
         if (elapsed > spinDuration - 500) {
           clearInterval(spinInterval);
-          spinInterval = setInterval(() => {
-            updateTicker();
-          }, 150);
+          spinInterval = setInterval(() => { updateTicker(); }, 150);
         }
       }, tickSpeed);
 
@@ -490,7 +444,6 @@
         clearInterval(spinInterval);
         const winningIndex = Math.floor(Math.random() * activeSpinList.length);
         winner = activeSpinList[winningIndex];
-
         tickerText.textContent = winner.name;
         tickerText.style.color = winner.color;
 
@@ -499,19 +452,16 @@
           spinningOverlay.classList.add('hidden');
           showWinnerScreen(winner);
         }, 350);
-
       }, spinDuration);
     }
 
     function showWinnerScreen(winObj) {
       winnerText.textContent = winObj.name;
       appContainer.style.backgroundColor = winObj.color;
-      
       mainView.classList.add('hidden');
       winnerOverlay.classList.remove('hidden');
-
       setWinnerPhase('reveal');
-      updateTopBarTheme(true);
+      updateTopBarTheme();
       playWinSound();
     }
 
@@ -535,71 +485,54 @@
 
     function handleSpinAgain() {
       if (!winner) return;
-      const remaining = activeSpinList.filter(r => r.id !== winner.id);
-      activeSpinList = remaining;
+      activeSpinList = activeSpinList.filter(r => r.id !== winner.id);
+      if (currentMode === 'custom') customRestaurants = activeSpinList;
 
-      // Only update the underlying custom list if we were playing in custom mode
-      if (currentMode === 'custom') {
-        restaurants = remaining;
-        renderRestaurantsList();
-        updateSpinButtonState();
-      }
-
-      if (remaining.length === 1) {
-        winner = remaining[0];
+      if (activeSpinList.length === 1) {
+        winner = activeSpinList[0];
         showWinnerScreen(winner);
         return;
       }
-      if (remaining.length === 0) {
+      if (activeSpinList.length === 0) {
         handleResetAndCommit();
         return;
       }
-
-      startRouletteSpin(remaining);
+      startRouletteSpin();
     }
 
     function handleResetAndCommit() {
       const now = new Date();
-      const optionsDay = { weekday: 'long' };
-      const optionsDate = { month: 'short', day: 'numeric', year: 'numeric' };
-      const dayName = now.toLocaleDateString('en-US', optionsDay);
-      const dateStr = now.toLocaleDateString('en-US', optionsDate);
-
       if (winner) {
         history.unshift({
           id: winner.id,
           name: winner.name,
           color: winner.color,
-          day: dayName,
-          date: dateStr,
-          timestamp: now.toISOString()
+          day: now.toLocaleDateString('en-US', { weekday: 'long' }),
+          date: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         });
       }
-
-      // Reset state, but only clear custom inputs if we were using custom mode
-      if (currentMode === 'custom') {
-        restaurants = [];
-        renderRestaurantsList();
-        updateSpinButtonState();
-      }
+      if (currentMode === 'custom') customRestaurants = [];
+      activeSpinList = [];
+      if (currentMode === 'explore') activeMallKey = null;
       
       winner = null;
       winnerPhase = 'reveal';
       isSpinning = false;
-      activeSpinList = [];
 
       winnerOverlay.classList.add('hidden');
-      spinningOverlay.classList.add('hidden');
       mainView.classList.remove('hidden');
       appContainer.style.backgroundColor = '#09090b';
 
-      updateTopBarTheme(false);
+      updateTopBarTheme();
       updateHistoryBadge();
+      
+      if (currentMode === 'explore') renderMallTabs();
+      renderRestaurantsList();
+      updateSpinButtonState();
     }
 
-    function updateTopBarTheme(isWinnerActive) {
-      toggleHistoryBtn.className = "text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-2 transition-all shadow-sm bg-zinc-900/90 text-zinc-300 border border-zinc-800 active:scale-95";
-      historyDot.className = "w-1.5 h-1.5 rounded-full bg-[#ffd02f]";
+    function updateTopBarTheme() {
+      toggleHistoryBtn.className = "text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-2 transition-all shadow-sm bg-zinc-900 text-zinc-300 border border-zinc-800 active:scale-95";
     }
 
     function updateHistoryBadge() {
@@ -617,22 +550,15 @@
         historyView.classList.add('hidden');
         mainView.classList.remove('hidden');
       }
-      updateHistoryBadge();
     }
 
     function renderHistoryList() {
       historyListContainer.innerHTML = "";
-
       if (history.length === 0) {
-        historyListContainer.innerHTML = `
-          <div class="text-zinc-600 text-center py-20 font-medium text-sm">
-            Belum ada history. Spin the wheel!
-          </div>
-        `;
+        historyListContainer.innerHTML = `<div class="text-zinc-600 text-center py-20 font-medium text-sm">Belum ada history. Spin the wheel!</div>`;
         return;
       }
-
-      history.forEach((item) => {
+      history.forEach(item => {
         const div = document.createElement('div');
         div.className = "bg-[#ffd02f] text-zinc-950 rounded-2xl p-4 flex items-center shadow-lg";
         div.innerHTML = `
@@ -651,11 +577,7 @@
       return div.innerHTML;
     }
 
-    // Initialize list state on load
     setMode('custom');
-    renderRestaurantsList();
-    updateSpinButtonState();
-    updateHistoryBadge();
   </script>
 </body>
 </html>
