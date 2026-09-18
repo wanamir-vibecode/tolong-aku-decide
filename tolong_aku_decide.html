@@ -1,1 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tolong Aku Decide</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Slackey -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Slackey&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --brand-yellow: #ffd02f;
+      --canvas: #09090b;
+      --surface: #18181b;
+      --hairline: #27272a;
+    }
 
+    body {
+      background-color: var(--canvas);
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .slackey-font {
+      font-family: 'Slackey', cursive;
+    }
+
+    /* Smooth animated spring transitions */
+    .spring-pop {
+      animation: springIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes springIn {
+      0% { opacity: 0; transform: scale(0.85) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .ticker-shake {
+      animation: tickerJitter 0.1s infinite alternate ease-in-out;
+    }
+
+    @keyframes tickerJitter {
+      0% { transform: translate(-2px, -1px); }
+      100% { transform: translate(2px, 1px); }
+    }
+
+    /* Custom scrollbar hide */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-[#09090b] text-white flex justify-center min-h-screen">
+
+  <!-- Mobile Viewport Container -->
+  <div 
+    id="appContainer" 
+    class="relative w-full max-w-md min-h-screen flex flex-col justify-between py-10 px-6 overflow-hidden transition-colors duration-500 bg-[#09090b]"
+  >
+
+    <!-- VIEW: Main Roulette Dashboard -->
+    <div id="mainView" class="w-full flex-1 flex flex-col items-center justify-between z-10">
+      
+      <!-- Top Bar Navigation (Only visible on Home Page) -->
+      <header id="topHeader" class="w-full flex justify-start items-center z-30 mb-2">
+        <button 
+          id="toggleHistoryBtn"
+          onclick="toggleHistoryView()"
+          class="text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-2 transition-all shadow-sm bg-zinc-900/90 text-zinc-300 border border-zinc-800 active:scale-95"
+        >
+          <span id="historyDot" class="w-1.5 h-1.5 rounded-full bg-[#ffd02f]"></span>
+          <span id="historyBtnLabel">History (0)</span>
+        </button>
+      </header>
+
+      <!-- App Header Title (Scaled up ~1.4x) -->
+      <div id="headerTitle" class="w-full flex flex-col items-center text-center gap-1 mt-20 sm:mt-24 mb-3 transition-opacity duration-300">
+        <h1 class="text-[2.65rem] sm:text-[3.25rem] font-black tracking-tight uppercase slackey-font leading-[1.08]">
+          Tolong <br/>
+          <span class="text-[#ffd02f]">Aku Decide</span>
+        </h1>
+        <p class="text-zinc-400 font-medium text-sm sm:text-[15px] mt-2 max-w-[340px] leading-relaxed">
+          Jangan gaduh. Meh aku tolong pilih.
+        </p>
+      </div>
+
+      <!-- Center Staging & Input Form -->
+      <main id="stagingCenter" class="w-full flex flex-col items-center justify-center my-auto">
+        <!-- Input Form -->
+        <form onsubmit="handleAddRestaurant(event)" class="w-full relative mb-6">
+          <input
+            id="restaurantInput"
+            type="text"
+            autocomplete="off"
+            placeholder="Add option / choice..."
+            class="w-full bg-zinc-900 border-2 border-zinc-800 focus:border-[#ffd02f] text-white rounded-full py-4 pl-6 pr-24 text-base font-semibold outline-none transition-colors placeholder:text-zinc-600 shadow-xl"
+            oninput="handleInputState()"
+          />
+          <button
+            id="addBtn"
+            type="submit"
+            disabled
+            class="absolute right-2 top-2 bottom-2 bg-white text-zinc-950 rounded-full px-6 font-bold text-xs uppercase tracking-wide disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
+          >
+            Add
+          </button>
+        </form>
+
+        <!-- Kinetic List of Staged Options -->
+        <ul id="restaurantsList" class="w-full flex flex-col gap-2.5 overflow-y-auto max-h-[28vh] px-1 no-scrollbar">
+          <!-- Populated by JavaScript -->
+        </ul>
+      </main>
+
+      <!-- Bottom Spin CTA Button -->
+      <div id="spinContainer" class="w-full pt-4 z-20">
+        <button
+          id="spinBtn"
+          onclick="startRouletteSpin()"
+          disabled
+          class="w-full bg-[#ffd02f] text-zinc-950 disabled:bg-zinc-900 disabled:text-zinc-600 rounded-full py-4 font-black text-xl uppercase tracking-wider shadow-lg disabled:shadow-none transition-all active:scale-95 slackey-font"
+        >
+          Need 2+ Options
+        </button>
+      </div>
+
+    </div>
+
+    <!-- OVERLAY: Fast Spinning Ticker -->
+    <div id="spinningOverlay" class="hidden absolute inset-0 flex items-center justify-center bg-zinc-950 z-20 px-6">
+      <div id="tickerBox" class="w-full px-4 text-center overflow-hidden ticker-shake">
+        <div class="text-zinc-500 text-sm font-bold uppercase tracking-[4px] mb-4 slackey-font">
+          Spinning...
+        </div>
+        <h2 
+          id="tickerText"
+          class="text-5xl sm:text-6xl font-black uppercase tracking-tight break-words leading-none slackey-font filter blur-[0.5px] transition-colors"
+        >
+          ...
+        </h2>
+      </div>
+    </div>
+
+    <!-- OVERLAY: Winner Announcement & Negotiation Flow -->
+    <div id="winnerOverlay" class="hidden absolute inset-0 flex flex-col items-center justify-center text-zinc-950 z-20 px-6 pt-16 pb-8 text-center">
+      
+      <!-- Phase 1: Reveal & Negotiate -->
+      <div id="negotiationBlock" class="flex flex-col items-center w-full max-w-sm spring-pop">
+        <div class="uppercase tracking-wider font-bold text-xs mb-4 bg-zinc-950 text-white py-1.5 px-5 rounded-full slackey-font shadow-md">
+          Yang menang adalah…
+        </div>
+
+        <h2 
+          id="winnerText" 
+          class="text-4xl sm:text-6xl font-black uppercase tracking-tight mb-8 w-full overflow-hidden slackey-font [overflow-wrap:anywhere] [word-break:normal] leading-tight"
+        >
+          Winner Name
+        </h2>
+
+        <!-- Action Choices (Yes/No or Rejection Options) -->
+        <div class="w-full min-h-[140px] flex flex-col justify-center">
+          
+          <!-- First question: Happy? -->
+          <div id="revealControls" class="flex flex-col items-center w-full">
+            <p class="font-bold text-lg mb-4 opacity-90">Happy with this choice?</p>
+            <div class="flex gap-3 w-full">
+              <button
+                onclick="setWinnerPhase('accepted')"
+                class="flex-1 bg-zinc-950 text-white rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform shadow-lg slackey-font"
+              >
+                Yes
+              </button>
+              <button
+                onclick="setWinnerPhase('rejected')"
+                class="flex-1 bg-transparent border-[3px] border-zinc-950 text-zinc-950 rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform slackey-font"
+              >
+                No
+              </button>
+            </div>
+          </div>
+
+          <!-- Second question if rejected -->
+          <div id="rejectedControls" class="hidden flex flex-col gap-2.5 w-full">
+            <button
+              onclick="handleSpinAgain()"
+              class="w-full bg-zinc-950 text-white rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform shadow-lg slackey-font"
+            >
+              Choose Another
+            </button>
+            <button
+              onclick="setWinnerPhase('accepted')"
+              class="w-full bg-transparent border-[3px] border-zinc-950 text-zinc-950 rounded-full py-3.5 font-bold text-base active:scale-95 transition-transform slackey-font"
+            >
+              Do Anyways
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Phase 2: Celebration Screen -->
+      <div id="celebrationBlock" class="hidden flex flex-col items-center w-full max-w-sm spring-pop">
+        <h2 class="text-5xl sm:text-6xl font-black uppercase tracking-tight leading-[0.95] mb-8 slackey-font">
+          Congrats<br/>Doh!
+        </h2>
+        <button
+          onclick="handleResetAndCommit()"
+          class="w-full bg-zinc-950 text-white rounded-full py-4 font-bold text-lg active:scale-95 transition-transform shadow-xl slackey-font"
+        >
+          Save & Start Over
+        </button>
+      </div>
+
+    </div>
+
+    <!-- VIEW: Past Decisions History -->
+    <div id="historyView" class="hidden w-full flex-1 flex flex-col pt-4 z-20 overflow-y-auto no-scrollbar">
+      <!-- Dedicated History Top Bar -->
+      <div class="flex items-center justify-between mb-6">
+        <button 
+          onclick="toggleHistoryView()"
+          class="text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 bg-zinc-900 text-zinc-300 border border-zinc-800 active:scale-95 transition-all shadow-sm"
+        >
+          ← Back
+        </button>
+        <h2 class="text-2xl slackey-font text-[#ffd02f]">Past Decisions</h2>
+        <div class="w-14"></div>
+      </div>
+      <div id="historyListContainer" class="flex flex-col gap-3 pb-8">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* Vibrant Neon Colors Palette */
+    const VIBRANT_COLORS = [
+      "#0fbcb0", // Teal
+      "#ff9999", // Coral
+      "#ffd8f4", // Rose
+      "#00e59b", // Neon Green
+      "#ff8c00", // Tangerine
+      "#708aff", // Light Brand Blue
+      "#e580ff"  // Electric Purple
+    ];
+
+    /* Application State */
+    let restaurants = [];
+    let history = [];
+    let isSpinning = false;
+    let winner = null;
+    let winnerPhase = 'reveal'; // 'reveal' | 'rejected' | 'accepted'
+    let currentView = 'main';    // 'main' | 'history'
+    let spinInterval = null;
+
+    /* DOM References */
+    const appContainer = document.getElementById('appContainer');
+    const mainView = document.getElementById('mainView');
+    const historyView = document.getElementById('historyView');
+    const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+    const historyBtnLabel = document.getElementById('historyBtnLabel');
+    const historyDot = document.getElementById('historyDot');
+    const restaurantInput = document.getElementById('restaurantInput');
+    const addBtn = document.getElementById('addBtn');
+    const restaurantsList = document.getElementById('restaurantsList');
+    const spinBtn = document.getElementById('spinBtn');
+    const spinningOverlay = document.getElementById('spinningOverlay');
+    const tickerText = document.getElementById('tickerText');
+    const winnerOverlay = document.getElementById('winnerOverlay');
+    const negotiationBlock = document.getElementById('negotiationBlock');
+    const celebrationBlock = document.getElementById('celebrationBlock');
+    const revealControls = document.getElementById('revealControls');
+    const rejectedControls = document.getElementById('rejectedControls');
+    const winnerText = document.getElementById('winnerText');
+    const historyListContainer = document.getElementById('historyListContainer');
+
+    /* Audio Chimes using Web Audio API */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playTickSound() {
+      try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(420, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      } catch (e) {}
+    }
+
+    function playWinSound() {
+      try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+        const now = ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.35);
+        });
+      } catch (e) {}
+    }
+
+    function handleInputState() {
+      const val = restaurantInput.value.trim();
+      addBtn.disabled = !val;
+    }
+
+    function handleAddRestaurant(e) {
+      if (e) e.preventDefault();
+      const cleanInput = restaurantInput.value.trim();
+      if (!cleanInput) return;
+
+      // Duplicate check
+      if (restaurants.some(r => r.name.toLowerCase() === cleanInput.toLowerCase())) {
+        restaurantInput.value = "";
+        handleInputState();
+        return;
+      }
+
+      const assignedColor = VIBRANT_COLORS[restaurants.length % VIBRANT_COLORS.length];
+      restaurants.unshift({
+        id: Date.now(),
+        name: cleanInput,
+        color: assignedColor
+      });
+
+      restaurantInput.value = "";
+      handleInputState();
+      renderRestaurantsList();
+      updateSpinButtonState();
+    }
+
+    function removeRestaurant(idToRemove) {
+      restaurants = restaurants.filter(r => r.id !== idToRemove);
+      renderRestaurantsList();
+      updateSpinButtonState();
+    }
+
+    function renderRestaurantsList() {
+      restaurantsList.innerHTML = "";
+
+      if (restaurants.length === 0) {
+        restaurantsList.innerHTML = `
+          <div class="text-center text-zinc-600 py-4 font-medium text-sm">
+            Add options above to start...
+          </div>
+        `;
+        return;
+      }
+
+      restaurants.forEach(rest => {
+        const li = document.createElement('li');
+        li.className = "spring-pop rounded-full py-3.5 px-6 flex justify-between items-center group shadow-md text-zinc-950";
+        li.style.backgroundColor = rest.color;
+        li.innerHTML = `
+          <span class="font-bold text-base leading-none pt-0.5 slackey-font">${escapeHtml(rest.name)}</span>
+          <button 
+            type="button"
+            onclick="removeRestaurant(${rest.id})"
+            class="w-7 h-7 rounded-full bg-zinc-950/10 flex items-center justify-center text-zinc-950 active:bg-zinc-950/25 transition-all"
+            aria-label="Remove"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        `;
+        restaurantsList.appendChild(li);
+      });
+    }
+
+    function updateSpinButtonState() {
+      if (restaurants.length < 2) {
+        spinBtn.disabled = true;
+        spinBtn.textContent = "Need 2+ Options";
+      } else {
+        spinBtn.disabled = false;
+        spinBtn.textContent = "Spin!";
+      }
+    }
+
+    function startRouletteSpin(overrideRestaurants = null) {
+      const activeList = Array.isArray(overrideRestaurants) ? overrideRestaurants : restaurants;
+      if (!activeList || activeList.length < 2) return;
+
+      isSpinning = true;
+      winner = null;
+      winnerPhase = 'reveal';
+
+      // Hide main dashboard and show spinning overlay
+      mainView.classList.add('hidden');
+      spinningOverlay.classList.remove('hidden');
+      winnerOverlay.classList.add('hidden');
+      appContainer.style.backgroundColor = '#09090b';
+
+      let tickerIndex = 0;
+      let elapsed = 0;
+      const spinDuration = 3000;
+      let tickSpeed = 60;
+
+      clearInterval(spinInterval);
+
+      const updateTicker = () => {
+        tickerIndex = (tickerIndex + 1) % activeList.length;
+        tickerText.textContent = activeList[tickerIndex].name;
+        tickerText.style.color = activeList[tickerIndex].color;
+        playTickSound();
+      };
+
+      spinInterval = setInterval(() => {
+        updateTicker();
+        elapsed += tickSpeed;
+
+        if (elapsed > spinDuration - 500) {
+          clearInterval(spinInterval);
+          spinInterval = setInterval(() => {
+            updateTicker();
+          }, 150);
+        }
+      }, tickSpeed);
+
+      setTimeout(() => {
+        clearInterval(spinInterval);
+        const winningIndex = Math.floor(Math.random() * activeList.length);
+        winner = activeList[winningIndex];
+
+        tickerText.textContent = winner.name;
+        tickerText.style.color = winner.color;
+
+        setTimeout(() => {
+          isSpinning = false;
+          spinningOverlay.classList.add('hidden');
+          showWinnerScreen(winner);
+        }, 350);
+
+      }, spinDuration);
+    }
+
+    function showWinnerScreen(winObj) {
+      winnerText.textContent = winObj.name;
+      appContainer.style.backgroundColor = winObj.color;
+      
+      // Ensure the input staging area is completely hidden during results
+      mainView.classList.add('hidden');
+      winnerOverlay.classList.remove('hidden');
+
+      setWinnerPhase('reveal');
+      updateTopBarTheme(true);
+      playWinSound();
+    }
+
+    function setWinnerPhase(phase) {
+      winnerPhase = phase;
+      if (phase === 'reveal') {
+        negotiationBlock.classList.remove('hidden');
+        celebrationBlock.classList.add('hidden');
+        revealControls.classList.remove('hidden');
+        rejectedControls.classList.add('hidden');
+      } else if (phase === 'rejected') {
+        negotiationBlock.classList.remove('hidden');
+        celebrationBlock.classList.add('hidden');
+        revealControls.classList.add('hidden');
+        rejectedControls.classList.remove('hidden');
+      } else if (phase === 'accepted') {
+        negotiationBlock.classList.add('hidden');
+        celebrationBlock.classList.remove('hidden');
+      }
+    }
+
+    function handleSpinAgain() {
+      if (!winner) return;
+      const remaining = restaurants.filter(r => r.id !== winner.id);
+      restaurants = remaining;
+      renderRestaurantsList();
+      updateSpinButtonState();
+
+      if (remaining.length === 1) {
+        winner = remaining[0];
+        showWinnerScreen(winner);
+        return;
+      }
+      if (remaining.length === 0) {
+        handleResetAndCommit();
+        return;
+      }
+
+      startRouletteSpin(remaining);
+    }
+
+    function handleResetAndCommit() {
+      const now = new Date();
+      const optionsDay = { weekday: 'long' };
+      const optionsDate = { month: 'short', day: 'numeric', year: 'numeric' };
+      const dayName = now.toLocaleDateString('en-US', optionsDay);
+      const dateStr = now.toLocaleDateString('en-US', optionsDate);
+
+      if (winner) {
+        history.unshift({
+          id: winner.id,
+          name: winner.name,
+          color: winner.color,
+          day: dayName,
+          date: dateStr,
+          timestamp: now.toISOString()
+        });
+      }
+
+      restaurants = [];
+      winner = null;
+      winnerPhase = 'reveal';
+      isSpinning = false;
+
+      winnerOverlay.classList.add('hidden');
+      spinningOverlay.classList.add('hidden');
+      mainView.classList.remove('hidden');
+      appContainer.style.backgroundColor = '#09090b';
+
+      updateTopBarTheme(false);
+      renderRestaurantsList();
+      updateSpinButtonState();
+      updateHistoryBadge();
+    }
+
+    function updateTopBarTheme(isWinnerActive) {
+      // Top bar is strictly on the home screen, keeping styles clean and consistent
+      toggleHistoryBtn.className = "text-xs font-semibold px-3.5 py-1.5 rounded-full flex items-center gap-2 transition-all shadow-sm bg-zinc-900/90 text-zinc-300 border border-zinc-800 active:scale-95";
+      historyDot.className = "w-1.5 h-1.5 rounded-full bg-[#ffd02f]";
+    }
+
+    function updateHistoryBadge() {
+      historyBtnLabel.textContent = `History (${history.length})`;
+    }
+
+    function toggleHistoryView() {
+      if (currentView === 'main') {
+        currentView = 'history';
+        mainView.classList.add('hidden');
+        historyView.classList.remove('hidden');
+        renderHistoryList();
+      } else {
+        currentView = 'main';
+        historyView.classList.add('hidden');
+        mainView.classList.remove('hidden');
+      }
+      updateHistoryBadge();
+    }
+
+    function renderHistoryList() {
+      historyListContainer.innerHTML = "";
+
+      if (history.length === 0) {
+        historyListContainer.innerHTML = `
+          <div class="text-zinc-600 text-center py-20 font-medium text-sm">
+            Belum ada history. Spin the wheel!
+          </div>
+        `;
+        return;
+      }
+
+      history.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = "bg-[#ffd02f] text-zinc-950 rounded-2xl p-4 flex items-center shadow-lg";
+        div.innerHTML = `
+          <div>
+            <div class="font-black text-2xl slackey-font leading-tight">${escapeHtml(item.name)}</div>
+            <div class="text-xs font-bold opacity-80 mt-1">${item.day}, ${item.date}</div>
+          </div>
+        `;
+        historyListContainer.appendChild(div);
+      });
+    }
+
+    function escapeHtml(string) {
+      const div = document.createElement('div');
+      div.innerText = string;
+      return div.innerHTML;
+    }
+
+    // Initialize list state on load
+    renderRestaurantsList();
+    updateSpinButtonState();
+    updateHistoryBadge();
+  </script>
+</body>
+</html>
